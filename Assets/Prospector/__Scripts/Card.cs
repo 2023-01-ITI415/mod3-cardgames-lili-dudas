@@ -38,6 +38,7 @@ public class Card : MonoBehaviour
         def = JsonParseDeck.GET_CARD_DEF(rank);
         //build the card from sprites
         AddDecorators();
+        AddPips();
     }
 
     ///<summary>
@@ -94,6 +95,36 @@ public class Card : MonoBehaviour
             _tGO.name = pip.type;
             //Add this decorator GameObject to the List card.decoGOs
             decoGOs.Add(_tGO);
+        }
+    }
+
+    /// <summary>
+    /// Adds pips to the front of all cards from A to 10
+    /// </summary>
+    private void AddPips() {
+        int pipNum = 0;
+        //For each of the pips in the definition...
+        foreach (JsonPip pip in def.pips) {
+            //instantiate a GameObject from the Deck.SPRITE_PREFAB static field
+            _tGO = Instantiate<GameObject>(Deck.SPRITE_PREFAB, transform);
+            //set the position to that specified in the XML
+            _tGO.transform.localPosition = pip.loc;
+            //Flip it if necessary
+            if (pip.flip) _tGO.transform.rotation = _flipRot;
+            //scale it if necessary (only for Ace)
+            if (pip.scale != 1) {
+                _tGO.transform.localScale = Vector3.one * pip.scale;
+            }
+            //give this GameObject a name
+            _tGO.name = "pip_"+pipNum++;
+            //get the SpriteRenderer Component
+            _tSRend = _tGO.GetComponent<SpriteRenderer>();
+            //set the Sprite to the proper suit
+            _tSRend.sprite = CardSpritesSO.SUITS[suit];
+            //sortingOrder=1 renders this pip above the Card_Front
+            _tSRend.sortingOrder = 1;
+            //add this to the Card's list of pips
+            pipGOs.Add(_tGO);
         }
     }
 }
