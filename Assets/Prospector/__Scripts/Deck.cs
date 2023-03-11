@@ -4,10 +4,10 @@ using UnityEngine;
 
 [RequireComponent( typeof(JsonParseDeck))]
 
-public class NewBehaviourScript : MonoBehaviour
+public class Deck : MonoBehaviour
 {
     [Header ("Inscribed")]
-    public CardSpriteSO cardSprites;
+    public CardSpritesSO cardSprites;
     public GameObject prefabCard;
     public GameObject prefabSprite;
     public bool startFaceUp = true;
@@ -40,8 +40,8 @@ public class NewBehaviourScript : MonoBehaviour
 
         //create anchor for all the Card GameObjects in the Hierarchy
         if (GameObject.Find( "_Deck") == null) {
-            GameObject anchorGO = new GameObject( "_Deck");
-            deckAnchor = anchorGO.transfrom;
+            GameObject anchorGO = new GameObject( "_Deck" );
+            deckAnchor = anchorGO.transform;
         }
 
         MakeCards();
