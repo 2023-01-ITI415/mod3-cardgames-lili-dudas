@@ -39,6 +39,7 @@ public class Card : MonoBehaviour
         //build the card from sprites
         AddDecorators();
         AddPips();
+        AddFace();
     }
 
     ///<summary>
@@ -126,5 +127,26 @@ public class Card : MonoBehaviour
             //add this to the Card's list of pips
             pipGOs.Add(_tGO);
         }
+    }
+
+    /// <summary>
+    /// Adds the face sprite for the card ranks 11 to 13
+    /// </summary>
+    private void AddFace() {
+        if (def.face == "")
+            return; //no need to run if this isn't a face card
+        //find a face sprite in CardSpritesSO with the right name
+        string faceName = def.face + suit;
+        _tSprite = CardSpritesSO.GET_FACE( faceName);
+        if ( _tSprite == null) {
+            Debug.LogError("Face sprite " + faceName + " not found." );
+            return;
+        }
+        _tGO = Instantiate<GameObject>( Deck.SPRITE_PREFAB, transform );
+        _tSRend = _tGO.GetComponent<SpriteRenderer>();
+        _tSRend.sprite = _tSprite; //assign the face Sprite to _tSRend
+        _tSRend.sortingOrder = 1; //set the sortingOrder
+        _tGO.transform.localPosition = Vector3.zero;
+        _tGO.name = faceName;
     }
 }
