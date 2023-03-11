@@ -37,6 +37,7 @@ public class Card : MonoBehaviour
 
         def = JsonParseDeck.GET_CARD_DEF(rank);
         //build the card from sprites
+        AddDecorators();
     }
 
     ///<summary>
@@ -45,5 +46,54 @@ public class Card : MonoBehaviour
     ///<param name="v"></param>
     public virtual void SetLocalPos(Vector3 v) {
         transform.localPosition = v;
+    }
+
+    //These private variables that will be reused several times
+    private Sprite _tSprite = null;
+    private GameObject _tGO = null;
+    private SpriteRenderer _tSRend = null;
+
+    //An Euler rotation of 180 degrees around the Z-axis will flip sprites upside
+    private Quaternion _flipRot = Quaternion.Euler(0, 0, 180);
+
+    /// <summary>
+    /// Adds the decorators to the top-left and bottom-right of each card.
+    /// Deocrators are the suit and rank in the corners of each card.
+    /// </summary>
+    private void AddDecorators() {
+        //add Decorators 
+        foreach (JsonPip pip in JsonParseDeck.DECORATORS){
+            if (pip.type == "suit") {
+                //instantiate a Sprite GameObject
+                _tGO = Instantiate<GameObject>(Deck.SPRITE_PREFAB,transform);
+                //get the SpriteRenderer Component
+                _tSRend = _tGO.GetComponent<SpriteRenderer>();
+                //get the suit Sprite from the CardSpritesSO.SUIT static field
+                _tSRend.sprite = CardSpritesSO.SUITS[suit];
+            }
+            else {
+                _tGO = Instantiate<GameObject>(Deck.SPRITE_PREFAB,transform);
+                _tSRend = _tGO.GetComponent<SpriteRenderer>();
+                //get the rank Sprite from the CardSpritesSO.RANK static field
+                _tSRend.sprite = CardSpritesSO.RANKS[rank];
+                //set the color of the rank to match the suit
+                _tSRend.color = color;
+            }
+            //make the Deocrator Sprites render above the Card
+            _tSRend.sortingOrder = 1;
+
+            //set the localPosition based on the location form DeckXML
+            _tGO.transform.localPosition = pip.loc;
+            //Flip the deocrator if needed
+            if (pip.flip) _tGO.transform.rotation = _flipRot;
+            //set the sclae to keep deocrators from being too big 
+            if (pip.scale != 1) {
+                _tGO.transform.localScale = Vector3.one * pip.scale;
+            }
+            //name this GameObject so it's easy to find in the Hierarchy
+            _tGO.name = pip.type;
+            //Add this decorator GameObject to the List card.decoGOs
+            decoGOs.Add(_tGO);
+        }
     }
 }
