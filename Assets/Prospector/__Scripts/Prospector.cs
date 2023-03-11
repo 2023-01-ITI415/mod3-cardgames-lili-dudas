@@ -12,7 +12,11 @@ public class Prospector : MonoBehaviour
 
     [Header("Dynamic")]
     public List<CardProspector> drawPile;
+    public List<CardProspector> discardPile;
+    public List<CardProspector> mine;
+    public CardProspector target;
 
+    private Transform layoutAnchor;
     private Deck deck;
     private JsonLayout jsonLayout;
     
@@ -29,6 +33,7 @@ public class Prospector : MonoBehaviour
         Deck.Shuffle(ref deck.cards);
 
         drawPile = ConvertCardsToCardsProspectors(deck.cards);
+        LayoutMine();
     }
 
     ///<summary>
@@ -45,5 +50,52 @@ public class Prospector : MonoBehaviour
             listCP.Add(cp);
         }
         return(listCP);
+    }
+
+    ///<summary>
+    ///Pulls a single card from the beginnning of the drawPile and returns it
+    ///Note: there is no protection against trying to draw from an empty pile!
+    ///</summary>
+    ///<returns>The top card of drawPile</returns>
+    CardProspector Draw() {
+        CardProspector cp = drawPile[0]; //Pull the 0th CardProtector
+        drawPile.RemoveAt(0); //then remove it from drawPile
+        return(cp); //and return it
+    }
+
+    ///<summary>
+    ///Positions the intial tableau of cards, a.k.a the "mine"
+    ///</summary>
+    void LayoutMine () {
+        //create an empty gameObject to serve as an anchor for the tableau
+        if(layoutAnchor == null) {
+            //create an empty GameObject named _LayoutAnchor in the Hierarchy
+            GameObject tGO = new GameObject("_LayoutAnchor");
+            layoutAnchor = tGO.transform; //grab its Transform
+        }
+        CardProspector cp;
+
+        //iterate through JsonLayoutSlots pulled from the JSON_Layout 
+        foreach (JsonLayoutSlot slot in jsonLayout.slots) {
+            cp = Draw(); //pull a card from the top of the draw Pile
+            cp.faceUp = slot.faceUp;
+            //make the CardProspector a child of layoutAnchor
+            cp.transform.SetParent(layoutAnchor);
+
+            //convert the last char of the layer string to an int 
+            int z = int.Parse(slot.layer[slot.layer.Length - 1].ToString());
+
+            //set the localPosition of the card based on the slot information
+            cp.SetLocalPos( new Vector3 (
+                jsonLayout.multiplier.x * slot.x,
+                jsonLayout.multiplier.y * slot.y,
+                - z));
+            cp.layoutID = slot.id;
+            cp.layoutSlot = slot;
+            //CardProspectors in the mine have the state cardState.mine
+            cp.state = eCardState.mine;
+
+            mine.Add(cp);//Add this CardProspector to the List<> mine
+        }
     }
 }
