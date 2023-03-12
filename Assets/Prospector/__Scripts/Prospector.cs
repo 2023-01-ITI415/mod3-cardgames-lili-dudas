@@ -178,4 +178,26 @@ public class Prospector : MonoBehaviour
             cp.SetSortingOrder(-10 * i);
         }
     }
+
+    ///<summary>
+    ///Handler for any time a card in the game is clicked
+    ///</summary>
+    ///<param name="cp">The CardProspector that was clicked</param>
+    static public void CARD_CLICKED(CardProspector cp) {
+        //the reaction is determined by the state of the clicked card
+        switch (cp.state) {
+            case eCardState.target:
+            //clicking the target card does nothing
+            break;
+            case eCardState.drawpile:
+            //clicking *any* card in the drawPile will draw the next card 
+            //call the two methods on the Prospector Singleton S
+            S.MoveToTarget(S.Draw()); //Draw a new target card
+            S.UpdateDrawPile();
+            break;
+            case eCardState.mine:
+            //more to come here
+            break;
+        }
+    }
 }

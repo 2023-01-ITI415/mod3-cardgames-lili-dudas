@@ -15,4 +15,14 @@ public class CardProspector : Card //make CardProspector extend Card
     public int layoutID;
     //this JsonLayoutSlot class stores information pulled in from JSON_Layout
     public JsonLayoutSlot layoutSlot;
+
+    ///<summary>
+    ///Informs the Prospector class that this card has been clicked.
+    ///</summary>
+    override public void OnMouseUpAsButton() {
+        //uncomment if testing is needed:
+        //base.OnMouseUpAsButton();
+        //call the CardClicked method on the Prospector Singleton
+        Prospector.CARD_CLICKED(this);
+    }
 }
