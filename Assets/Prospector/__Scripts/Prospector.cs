@@ -19,6 +19,9 @@ public class Prospector : MonoBehaviour
     private Transform layoutAnchor;
     private Deck deck;
     private JsonLayout jsonLayout;
+
+    //A Dictionary to pair mine layout IDs and actual Cards
+    private Dictionary<int, CardProspector> mineIdToCardDict;
     
     void Start()
     {
@@ -81,6 +84,8 @@ public class Prospector : MonoBehaviour
             layoutAnchor = tGO.transform; //grab its Transform
         }
         CardProspector cp;
+        //generate the Dictionary to match mine layout ID to CardProspector
+        mineIdToCardDict = new Dictionary<int, CardProspector>();
 
         //iterate through JsonLayoutSlots pulled from the JSON_Layout 
         foreach (JsonLayoutSlot slot in jsonLayout.slots) {
@@ -105,6 +110,9 @@ public class Prospector : MonoBehaviour
             //set the sorting layer of all SpriteRenderers on the Card
             cp.SetSpriteSortingLayer(slot.layer);
             mine.Add(cp);//Add this CardProspector to the List<> mine
+
+            //add this CardProspector to the mineIDtoCardDict Dictionary
+            mineIdToCardDict.Add(slot.id, cp);
         }
     }
 
@@ -180,6 +188,26 @@ public class Prospector : MonoBehaviour
     }
 
     ///<summary>
+    ///this turns cards in the Mine face-up and face-down 
+    ///</summary>
+    public void SetMineFaceUps() {
+        CardProspector coverCP;
+        foreach (CardProspector cp in mine ) {
+            bool faceUp = true; //assume the card will face-up
+
+            //iterate through the covering by mine layout ID
+            foreach (int coverID in cp.layoutSlot.hiddenBy) {
+                coverCP = mineIdToCardDict[coverID];
+                //if the covering cards by mine layout ID
+                if (coverCP == null || coverCP.state == eCardState.mine){
+                    faceUp = false; //then this card is face-down
+                }
+            }
+            cp.faceUp = faceUp; //set the value on the card
+        }
+    }
+
+    ///<summary>
     ///Handler for any time a card in the game is clicked
     ///</summary>
     ///<param name="cp">The CardProspector that was clicked</param>
@@ -208,6 +236,8 @@ public class Prospector : MonoBehaviour
             if(validMatch) {
                 S.mine.Remove(cp); //remove it from the tableau List
                 S.MoveToTarget(cp); //Make it the target card
+
+                S.SetMineFaceUps(); 
             }
             break;
         }
