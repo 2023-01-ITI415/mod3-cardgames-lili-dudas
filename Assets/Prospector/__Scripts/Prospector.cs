@@ -131,11 +131,11 @@ public class Prospector : MonoBehaviour
             jsonLayout.multiplier.x * jsonLayout.discardPile.x,
             jsonLayout.multiplier.y * jsonLayout.discardPile.y,
             0));
+       
         cp.faceUp = true;
 
         //Place it on top of the pile for depth sorting
         cp.SetSpriteSortingLayer(jsonLayout.discardPile.layer);
-
         cp.SetSortingOrder(-200 + (discardPile.Count * 3));
     }
 
